@@ -2,6 +2,17 @@ const header = document.querySelector("[data-header]");
 const revealItems = document.querySelectorAll(".reveal");
 const applicationForm = document.querySelector("[data-application-form]");
 const applicationResult = document.querySelector("[data-application-result]");
+const applicationRecipient = "erwin@sacredsound.studio";
+const applicationQuestions = {
+  q1: "I have a clear sense of who I am and what I am called to be.",
+  q2: "My leadership remains steady, clear, and values-aligned under pressure.",
+  q3: "The key relationships around me are marked by trust, candor, and repair.",
+  q4: "My current environment supports the person and organization I am becoming.",
+  q5: "I am carrying significant pressure, complexity, or responsibility right now.",
+  q6: "I have the capacity, margin, and support needed for my current circumstance.",
+  q7: "Decision-making, accountability, and priorities are coherent in my system.",
+  q8: "The outcomes I am producing feel sustainable, fruitful, and aligned.",
+};
 
 const updateHeader = () => {
   header?.classList.toggle("is-scrolled", window.scrollY > 16);
@@ -77,6 +88,30 @@ const getAlignmentState = (scores) => {
   };
 };
 
+const buildApplicationEmail = (formData, scores, state) => {
+  const applicantName = formData.get("name") || "Applicant";
+  const subject = `Nanasi Alignment Application - ${applicantName}`;
+  const scoreLines = Object.entries(applicationQuestions)
+    .map(([key, question]) => `${question}\nScore: ${scores[key]}/5`)
+    .join("\n\n");
+  const body = [
+    "New Nanasi Institute alignment application",
+    "",
+    `Name: ${applicantName}`,
+    `Email: ${formData.get("email")}`,
+    `Age category: ${formData.get("age")}`,
+    `Continent: ${formData.get("continent")}`,
+    "",
+    `Preliminary alignment state: ${state.label}`,
+    state.detail,
+    "",
+    "Alignment pulse",
+    scoreLines,
+  ].join("\n");
+
+  return `mailto:${applicationRecipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+};
+
 applicationForm?.addEventListener("submit", (event) => {
   event.preventDefault();
 
@@ -95,5 +130,6 @@ applicationForm?.addEventListener("submit", (event) => {
   const applicantName = formData.get("name") || "Your application";
 
   applicationResult.className = `application-result is-visible ${state.className}`;
-  applicationResult.textContent = `${applicantName}: preliminary alignment state is ${state.label} - ${state.detail}`;
+  applicationResult.textContent = `${applicantName}: preliminary alignment state is ${state.label} - ${state.detail} Your email app will open to send this application to Erwin.`;
+  window.location.href = buildApplicationEmail(formData, scores, state);
 });
