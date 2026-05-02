@@ -128,8 +128,14 @@ applicationForm?.addEventListener("submit", (event) => {
   };
   const state = getAlignmentState(scores);
   const applicantName = formData.get("name") || "Your application";
+  const emailHref = buildApplicationEmail(formData, scores, state);
 
   applicationResult.className = `application-result is-visible ${state.className}`;
-  applicationResult.textContent = `${applicantName}: preliminary alignment state is ${state.label} - ${state.detail} Your email app will open to send this application to Erwin.`;
-  window.location.href = buildApplicationEmail(formData, scores, state);
+  applicationResult.innerHTML = `
+    <span>${applicantName}: preliminary alignment state is ${state.label} - ${state.detail}</span>
+    <a href="${emailHref}">Send application email to Erwin</a>
+  `;
+
+  const emailLink = applicationResult.querySelector("a");
+  emailLink?.click();
 });
